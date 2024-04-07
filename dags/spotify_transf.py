@@ -21,7 +21,7 @@ def assign_genre(genre, music_genres):
     return 'Other'
 
 def read_csv():
-    spotify_df = pd.read_csv("../data/spotify_dataset.csv")
+    spotify_df = pd.read_csv("./data/spotify_dataset.csv")
     logging.info("Extraction completed")
     return spotify_df.to_json(orient='records')
 
