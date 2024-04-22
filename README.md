@@ -111,8 +111,10 @@ pip install -r requirements.txt
 **Requirement:** In Visual Studio Code have python and docker installed.
 
  - Python
+   
  [![Captura-de-pantalla-2024-04-21-122151.png](https://i.postimg.cc/pLnBpp2M/Captura-de-pantalla-2024-04-21-122151.png)](https://postimg.cc/hXcmY4z2)
- - Docker 
+ - Docker
+   
  [![dockervisual.png](https://i.postimg.cc/nhs3B3G5/dockervisual.png)](https://postimg.cc/SnhLp757)
 
 
@@ -120,13 +122,16 @@ pip install -r requirements.txt
 [![Captura-de-pantalla-2024-04-21-124757.png](https://i.postimg.cc/nc8Fyh3w/Captura-de-pantalla-2024-04-21-124757.png)](https://postimg.cc/mhwWMBfQ)
 
 Make sure you have your project folder ready on your system, then open Visual Studio Code and select your project folder from the 'File' > 'Open Folder' menu.
-- Open the folder in visual 
+- Open the folder in visual
+  
  [![wk2-parte1.png](https://i.postimg.cc/T3MR3PqJ/wk2-parte1.png)](https://postimg.cc/BXpWh4zj)
 
 - First we build the image with the Dockerfile
+  
 [![wk2-parte2.png](https://i.postimg.cc/02Qzgr5W/wk2-parte2.png)](https://postimg.cc/QV2818T1)
 
-- We lift the services  
+- We lift the services
+  
 [![wk2-parte3.png](https://i.postimg.cc/g0Zxj71f/wk2-parte3.png)](https://postimg.cc/NyQsPds4)
 
 ### If you use another code editor
@@ -148,14 +153,19 @@ docker-compose up
 7. We made the connection with Power BI to graph the transformed data.
 
  - Open a new window in Power BI
+   
  [![Datos.png](https://i.postimg.cc/fRFZQdzD/Datos.png)](https://postimg.cc/RWc2cNJD)
  - Select in 'more'.
+   
  [![datas2.png](https://i.postimg.cc/JzdJwpH0/datas2.png)](https://postimg.cc/w1L3LcVY)
  - Select PostgreSQL database
+   
  [![datos3.png](https://i.postimg.cc/sfNRhSWS/datos3.png)](https://postimg.cc/K4BVX1Jv)
  - Insert your information and accept
+   
  [![datos4.png](https://i.postimg.cc/j2G9kH6F/datos4.png)](https://postimg.cc/T5JCKW4V)
  - Select the table and download the information
+   
 [![Captura-de-pantalla-2024-04-21-123802.png](https://i.postimg.cc/J0kF3mJs/Captura-de-pantalla-2024-04-21-123802.png)](https://postimg.cc/JHRKmfp8)
 Already the data is synchronized with Power BI and you can make your own dashboard.
 
