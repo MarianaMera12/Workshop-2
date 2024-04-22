@@ -27,7 +27,6 @@ def read_csv():
 
 
 def transform_csv(**kwargs):
-    logging.info("the kwargs are: ", kwargs)
     ti = kwargs["ti"]
     str_data = ti.xcom_pull(task_ids="read_csv")
     json_data = json.loads(str_data)
@@ -42,7 +41,10 @@ def transform_csv(**kwargs):
     spotify_df['secondary_artist'] = spotify_df['split_artists'].apply(lambda x: x[1] if len(x) > 1 else None)
     spotify_df['secondary_artist'] = spotify_df['secondary_artist'].fillna('No second artist')
     spotify_df['genre_category'] = spotify_df['track_genre'].apply(lambda x: assign_genre(x, music_genres))
-    spotify_df = spotify_df.drop(columns=['Unnamed: 0', 'split_artists'])
-
+    spotify_df['popularity_category'] = pd.cut(spotify_df['popularity'], bins=[0, 33, 66, 100], labels=['Low', 'Medium', 'High'], include_lowest=True)
+    spotify_df = spotify_df.drop(columns=['Unnamed: 0', 'split_artists', 'track_id'])
+    
+    num_columns_after = spotify_df.shape[1]
+    logging.info(f"The DataFrame has {num_columns_after} columns after the transformation.")
     logging.info(f"Finished transformations")
     return spotify_df.to_json(orient='records')

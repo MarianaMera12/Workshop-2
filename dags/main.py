@@ -5,13 +5,13 @@ from airflow.models.baseoperator import chain
 from datetime import datetime
 from spotify_transf import read_csv, transform_csv
 from grammy_transf import read_db, transform_db
-from merge import merge
+from merge import merge, load
+from dags.pydrive.GoogleDrive import store
 
 
 import sys 
 import os
-#sys.path.append(os.path.abspath("/opt/airflow/dags/dag_connections/"))
-#from etl import extract, transform, load
+
 
 
 
@@ -63,8 +63,20 @@ with DAG(
         provide_context = True,
         )
     
+    load_taks = PythonOperator(
+        task_id='load',
+        python_callable= load,
+        provide_context = True,
+    )
 
-
+    store_taks = PythonOperator(
+        task_id='store',
+        python_callable= store,
+        provide_context = True,
+    )
+    
+    load_taks >> store_taks
+    merge_taks >> load_taks
     read_csv_taks >> transformation_csv >> merge_taks
     read_db_taks >> transformation_db >> merge_taks
     

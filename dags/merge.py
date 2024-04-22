@@ -4,46 +4,33 @@ import json
 import db_extract
 
 
-
 def merge(**kwargs):
     ti = kwargs["ti"]
     
-    # Obtener los datos transformados de la base de datos
-    db_data = ti.xcom_pull(task_ids="transform_db")
-    if db_data is None:
-        logging.warning("No se encontraron datos transformados para la fusión.")
-        return None
-    
-    # Cargar los datos transformados de la base de datos como JSON
-    try:
-        json_data = json.loads(db_data)
-    except json.JSONDecodeError as e:
-        logging.error(f"Error al decodificar JSON: {e}")
-        return None
-    
-    # Convertir los datos JSON en un DataFrame de Pandas
+    json_data = json.loads(ti.xcom_pull(task_ids="transformation_db"))
     grammy_df = pd.json_normalize(data=json_data)
-    
-    # Obtener los datos transformados del archivo CSV
-    csv_data = ti.xcom_pull(task_ids="transform_csv")
-    if csv_data is None:
-        logging.warning("No se encontraron datos transformados del archivo CSV para la fusión.")
-        return None
-    
-    # Cargar los datos transformados del archivo CSV como JSON
-    try:
-        json_data = json.loads(csv_data)
-    except json.JSONDecodeError as e:
-        logging.error(f"Error al decodificar JSON: {e}")
-        return None
-    
-    # Convertir los datos JSON en un DataFrame de Pandas
+
+    json_data = json.loads(ti.xcom_pull(task_ids="transformation_csv"))
     spotify_df = pd.json_normalize(data=json_data)
     
-    # Fusionar los DataFrames
-    merge_sg = grammy_df.merge(spotify_df, how='inner', left_on=['nominee', 'artist'], right_on=['track_name', 'artists'])
+    # Merge 
+    merge_sg = spotify_df.merge(grammy_df, how='left', left_on='track_name', right_on='nominee')
+    merge_sg['grammy_nominee'] = merge_sg['grammy_nominee'].notna().astype(int)
+    merge_sg.drop([37417, 37660], inplace=True)
+    merge_sg.drop(columns=['year', 'title', 'category', 'nominee', 'artist', 'workers'], inplace=True)
+    
 
-    logging.info("Se ha realizado la fusión de datos con éxito.")
+    logging.info("Data merging has been performed successfully.")
+
+    num_rows = merge_sg.shape[0]
+    num_cols = merge_sg.shape[1]
+    logging.info(f"Number of records: {num_rows}")
+    logging.info(f"Number of columns: {num_cols}")
+    
+    csv_file_path = "./data/merge_result.csv"
+    merge_sg.to_csv(csv_file_path, index=False)
+    logging.info(f"The result of the merge has been saved in: {csv_file_path}")
+    
     return merge_sg.to_json(orient='records')
 
 
@@ -51,10 +38,22 @@ def merge(**kwargs):
 def load(**kwargs):
     ti = kwargs["ti"]
     json_data = json.loads(ti.xcom_pull(task_ids="merge"))
-    data = pd.json_normalize(data=json_data)
+    load_data = pd.json_normalize(json_data)
+    logging.info("Loading data")
 
-    logging.info("Cargando datos...")
+    connection = db_extract.connect_bd()
     
-    db_extract.insert_data(data)
-    
-    logging.info("Los datos se han cargado en: tracks")
+    if connection is not None:
+        try:
+
+            db_extract.create_merge_table(connection)
+            
+            db_extract.insert_merge_data(load_data, connection)
+            
+            connection.dispose()
+            
+            logging.info("Data has been loaded into the merge table")
+        except Exception as e:
+            logging.error("Error loading data into the merge table:", e)
+    else:
+        logging.error("Unable to connect to the database")
